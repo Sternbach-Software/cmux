@@ -20,7 +20,17 @@ extension VerticalTabsSidebar {
         guard let workspace = tabManager.tabs.first(where: { $0.id == entry.workspaceID }),
               let panel = workspace.panels[entry.id] else { return nil }
         if let terminal = panel as? TerminalPanel {
-            return terminal.surface.readText(region: .history)
+            // Ghostty's history can exclude the active screen. Use the same
+            // complete text capture as `cmux read-screen --scrollback`.
+            guard let snapshot = TerminalController.shared.readTerminalTextRawSnapshot(
+                terminalSurface: terminal.surface,
+                includeScrollback: true
+            ), case .success(let payload) = TerminalController.terminalTextPayload(
+                from: snapshot,
+                includeScrollback: true,
+                lineLimit: nil
+            ) else { return nil }
+            return payload.text
         }
         if let markdown = panel as? MarkdownPanel {
             return markdown.displayMode == .text ? markdown.textContent : markdown.content
@@ -34,6 +44,14 @@ extension VerticalTabsSidebar {
         selection = .tabs
         selectedTabIds = [workspaceID]
         lastSidebarSelectionIndex = tabManager.tabs.firstIndex(where: { $0.id == workspaceID })
+        // A search field's editor otherwise makes terminal focus restoration
+        // intentionally back off, even after the target tab is selected.
+        _ = observedWindow?.makeFirstResponder(nil)
+        AppDelegate.shared?.noteMainPanelKeyboardFocusIntent(
+            workspaceId: workspaceID,
+            panelId: panelID,
+            in: observedWindow
+        )
         tabManager.focusTab(
             workspaceID,
             surfaceId: panelID,
