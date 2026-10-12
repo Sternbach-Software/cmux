@@ -157,6 +157,7 @@
         "CmuxNextFeed",
         "CmuxNextHistory",
         "CmuxNextHome",
+        "CmuxNextHomeEngine",
         "CmuxNextIcons",
         "CmuxNextLayout",
         "CmuxNextMallocZone",
@@ -213,6 +214,7 @@
         "CmuxNextDaemon",
         "CmuxNextHistory",
         "CmuxNextHome",
+        "CmuxNextHomeEngine",
         "CmuxNextLayout",
         "CmuxNextProcessEnvironment",
         "CmuxNextTabs",
@@ -470,6 +472,25 @@
         "CmuxHomeCore",
         "CmuxHomeRender",
         "CmuxMessagesLab"
+      ]
+    },
+    "CmuxNextHomeEngine": {
+      "kind": "regular",
+      "path": "Packages/macOS/CmuxNext/Sources/CmuxNextHomeEngine",
+      "targets": [
+        "CmuxNextActions",
+        "CmuxNextAgentPane",
+        "CmuxNextCloud",
+        "CmuxNextCompat",
+        "CmuxNextDaemon",
+        "CmuxNextDesign",
+        "CmuxNextHome",
+        "CmuxNextIcons",
+        "CmuxNextWakeups"
+      ],
+      "packages": [
+        "CmuxAgentQuestion",
+        "CmuxHomeCore"
       ]
     },
     "CmuxNextIcons": {
