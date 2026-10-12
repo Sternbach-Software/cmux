@@ -37,7 +37,6 @@ extension KeyboardShortcutSettings.Action {
         DockShortcutRoutingDisposition {
         switch self {
         case .triggerFlash,
-             .nextSurface, .prevSurface,
              .moveSurfaceLeft, .moveSurfaceRight,
              .moveSurfaceToPreviousPane, .moveSurfaceToNextPane,
              .moveSurfaceToPaneLeft, .moveSurfaceToPaneRight,
@@ -114,6 +113,7 @@ extension KeyboardShortcutSettings.Action {
              .switchRightSidebarToDock,
              .switchRightSidebarToMachines,
              .nextSidebarTab, .prevSidebarTab,
+             .nextSurface, .prevSurface,
              .nextSidebarTabInGroup, .prevSidebarTabInGroup,
              .moveWorkspaceUp, .moveWorkspaceDown,
              .selectWorkspaceByNumber,
@@ -366,18 +366,26 @@ extension AppDelegate {
             .toggleFocusedTerminalCopyMode() ?? false
     }
 
+    /// Ctrl+Tab or Ctrl+PageDown.
     func matchesLegacyNextSurfaceShortcut(event: NSEvent) -> Bool {
         matchTabShortcut(
             event: event,
             shortcut: StoredShortcut(key: "\t", command: false, shift: false, option: false, control: true)
-        )
+        ) || matchesControlPageKey(event: event, keyCode: 121)
     }
 
+    /// Ctrl+Shift+Tab or Ctrl+PageUp.
     func matchesLegacyPreviousSurfaceShortcut(event: NSEvent) -> Bool {
         matchTabShortcut(
             event: event,
             shortcut: StoredShortcut(key: "\t", command: false, shift: true, option: false, control: true)
-        )
+        ) || matchesControlPageKey(event: event, keyCode: 116)
+    }
+
+    /// PageDown is key code 121 and PageUp 116.
+    private func matchesControlPageKey(event: NSEvent, keyCode: UInt16) -> Bool {
+        event.keyCode == keyCode
+            && ShortcutStroke.normalizedModifierFlags(from: event.modifierFlags) == [.control]
     }
 
     func ghosttyGotoSplitShortcut(for direction: NavigationDirection) -> StoredShortcut? {
