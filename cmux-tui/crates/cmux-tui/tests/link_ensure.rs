@@ -177,6 +177,25 @@ fn link_ensure_with_handoff_replaces_the_link_of_another_install() {
     let dir = dir.to_str().unwrap();
     let old = app.ensure(&["--install", "inst_old", "--port", "0", "--handoff"]);
     let old_key = app.json(&["link", "show", "--state-dir", dir])["public_key"].clone();
+    app.json(&[
+        "link",
+        "peer",
+        "add",
+        "--state-dir",
+        dir,
+        "--install",
+        "inst_peer",
+        "--user",
+        "u_old",
+        "--team",
+        "t_old",
+        "--public-key",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    ]);
+    assert_eq!(
+        app.json(&["link", "peer", "list", "--state-dir", dir])["peers"].as_array().map(Vec::len),
+        Some(1)
+    );
     let new = app.ensure(&["--install", "inst_new", "--handoff"]);
     assert_eq!(new["status"], "restarted", "{new}");
     assert_ne!(pid(&new), pid(&old));
@@ -184,6 +203,12 @@ fn link_ensure_with_handoff_replaces_the_link_of_another_install() {
     assert_eq!(app.status()["install"], "inst_new");
     let new_key = app.json(&["link", "show", "--state-dir", dir])["public_key"].clone();
     assert_ne!(new_key, old_key, "a new install got the old install's key");
+    let peers = app.json(&["link", "peer", "list", "--state-dir", dir]);
+    assert_eq!(
+        peers["peers"],
+        serde_json::json!([]),
+        "the old install's peers carried over: {peers}"
+    );
     assert_eq!(app.status()["port"], 0, "the port stays");
 }
 
