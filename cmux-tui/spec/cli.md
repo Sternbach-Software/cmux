@@ -68,7 +68,11 @@ directories (a tagged DEV build and the release app) never share a socket.
 `ensure` runs `init` first when the state directory has no config (then
 `--install` is required; `--port 0` binds any free UDP port) and refuses a
 different `--install` or `--port` than the config has (`install_mismatch`,
-`port_mismatch`). When a link of this state directory runs, `ensure` keeps it
+`port_mismatch`). With `--handoff` (the app, which owns its link), a
+different `--install` or `--port` replaces the config instead: the running
+link stops, and a new install gets a new WireGuard key and an empty
+`peers.json` (a new install may be another signed-in person, so the old
+install's paired machines never carry over). When a link of this state directory runs, `ensure` keeps it
 and prints `{"status":"running","pid","socket","build","udp"}`; with
 `--handoff`, a running link of another build is stopped and replaced
 (`"status":"restarted"`). Otherwise it starts `cmux link serve` in its own

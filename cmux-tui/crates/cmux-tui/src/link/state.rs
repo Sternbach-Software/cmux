@@ -109,13 +109,17 @@ impl LinkState {
         write_private(&self.config_path(), &text)
     }
 
-    /// Removes the WireGuard key, so the next `init` makes a new one (a
-    /// new install never keeps another install's key).
-    pub(super) fn forget_key(&self) -> io::Result<()> {
-        match std::fs::remove_file(self.key_path()) {
-            Err(error) if error.kind() != io::ErrorKind::NotFound => Err(error),
-            _ => Ok(()),
+    /// Removes the WireGuard key and the paired peers, so the next `init`
+    /// makes a new key: a new install (perhaps another signed-in person)
+    /// never keeps another install's key or its paired machines.
+    pub(super) fn forget_install(&self) -> io::Result<()> {
+        for path in [self.key_path(), self.peers_path()] {
+            match std::fs::remove_file(path) {
+                Err(error) if error.kind() != io::ErrorKind::NotFound => return Err(error),
+                _ => {}
+            }
         }
+        Ok(())
     }
 
     pub(super) fn private_key(&self) -> io::Result<Zeroizing<[u8; 32]>> {

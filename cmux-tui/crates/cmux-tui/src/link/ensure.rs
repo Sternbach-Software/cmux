@@ -109,8 +109,9 @@ fn query_status(socket: &Path) -> Option<Value> {
 /// Runs `init` when the state directory has none; otherwise checks
 /// `--install` and `--port` against the config. With `handoff` (the app,
 /// which owns this link), another install or port replaces the config: the
-/// running link stops, the WireGuard key is made new (a new install never
-/// keeps the old install's key); true when a running link was stopped.
+/// running link stops; a new install gets a new WireGuard key and no paired
+/// peers (it may be another signed-in person); true when a running link
+/// was stopped.
 fn init_or_check(state: &LinkState, flags: &Flags, handoff: bool) -> anyhow::Result<bool> {
     let port = match flags.get("--port") {
         Some(text) => Some(text.parse::<u16>().map_err(|_| anyhow!("--port needs a UDP port"))?),
@@ -141,7 +142,7 @@ fn init_or_check(state: &LinkState, flags: &Flags, handoff: bool) -> anyhow::Res
         port: other_port.unwrap_or(config.port),
     };
     if install.is_some() {
-        state.forget_key()?;
+        state.forget_install()?;
     }
     state.init(&fresh)?;
     Ok(stopped)
