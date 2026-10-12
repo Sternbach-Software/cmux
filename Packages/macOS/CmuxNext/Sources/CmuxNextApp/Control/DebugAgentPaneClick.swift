@@ -30,9 +30,21 @@ enum DebugAgentPaneClick {
             }
         }
         if (!target) return JSON.stringify({ error: 'no visible element matches' });
+        // What the page sees of the click (`page_events` in the result).
+        const seen = [];
+        window.__cmuxDebugClick = seen;
+        for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click']) {
+            window.addEventListener(type, (e) => { if (window.__cmuxDebugClick === seen) seen.push(type + (e.isTrusted ? '' : '?')); }, { capture: true, once: true });
+        }
         target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         const r = target.getBoundingClientRect();
         return JSON.stringify({ x: r.left + r.width / 2, y: r.top + r.height / 2, tag: target.tagName.toLowerCase() });
+        """
+
+    /// After the click: the page's events (`?` marks an untrusted one), its visibility and focus.
+    private static let report = """
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return JSON.stringify({ events: window.__cmuxDebugClick ?? [], visibility: document.visibilityState, focus: document.hasFocus() });
         """
 
     static func click(_ params: [String: JSONValue], pane: String, view: AgentPaneView, services: AppServices) async -> JSONValue {
@@ -70,8 +82,15 @@ enum DebugAgentPaneClick {
         guard let down = mouse(.leftMouseDown), let up = mouse(.leftMouseUp) else {
             return .object(["pane": .string(pane), "error": .string("could not synthesize events")])
         }
+        // What a real click at this point reaches: the window's hit test, from its frame view.
+        let frameView = window.contentView?.superview
+        let hit = frameView.flatMap { $0.hitTest($0.convert(point, from: nil)) }
+        // `path`: "app" or "view" forces one delivery path; by default the key window takes the app's.
+        let path = params["path"]?.stringValue
+        let responderBefore = window.firstResponder.map { String(describing: type(of: $0)) }
+        let countsBefore = view.debugWebViewMouseCounts
         let delivered: String
-        if DebugNativeInput.usesAppKitPath(window) {
+        if path == "app" || (path != "view" && DebugNativeInput.usesAppKitPath(window)) {
             DebugNativeInput.sendThroughApp([down, up])
             delivered = "app"
         } else {
@@ -82,11 +101,25 @@ enum DebugAgentPaneClick {
             webView.mouseUp(with: up)
             delivered = "view"
         }
+        let countsAfter = view.debugWebViewMouseCounts
+        let responderAfter = window.firstResponder.map { String(describing: type(of: $0)) }
         let gestures = view.model.transport.gestures.debugState
+        let page = (try? await webView.callAsyncJavaScript(report, arguments: [:], in: nil, contentWorld: .page)) as? String
+        let pageObject = page.flatMap { (try? JSONSerialization.jsonObject(with: Data($0.utf8))) as? [String: Any] }
         return .object([
             "pane": .string(pane), "clicked": .bool(true), "tag": (found["tag"] as? String).map(JSONValue.string) ?? .null,
             "window_x": .number(Double(point.x)), "window_y": .number(Double(point.y)), "delivered": .string(delivered),
             "gesture_available": .bool(gestures.available),
+            "hit": hit.map { .string(String(describing: type(of: $0))) } ?? .null,
+            "hit_in_page": .bool(hit?.isDescendant(of: webView) == true),
+            "hit_is_web_view": .bool(hit === webView),
+            "web_view_downs": .number(Double(countsAfter.down - countsBefore.down)),
+            "web_view_ups": .number(Double(countsAfter.up - countsBefore.up)),
+            "responder_before": responderBefore.map(JSONValue.string) ?? .null,
+            "responder_after": responderAfter.map(JSONValue.string) ?? .null,
+            "page_events": .array(((pageObject?["events"] as? [String]) ?? []).map(JSONValue.string)),
+            "page_visibility": (pageObject?["visibility"] as? String).map(JSONValue.string) ?? .null,
+            "page_focus": (pageObject?["focus"] as? Bool).map(JSONValue.bool) ?? .null,
         ])
     }
 }
