@@ -2065,6 +2065,19 @@ fi
 
 CLI_PATH="$(dirname "$APP_PATH")/cmux"
 
+# Xcode can copy SwiftPM resource bundles after the helper build phase.
+# Reconcile their CLI links after all copies complete, before final signing.
+APP_RESOURCES_DIR="$APP_PATH/Contents/Resources"
+mkdir -p "$APP_RESOURCES_DIR/bin"
+for CLI_RESOURCE_BUNDLE in "$APP_RESOURCES_DIR"/*.bundle; do
+  [[ -d "$CLI_RESOURCE_BUNDLE" ]] || continue
+  CLI_RESOURCE_BUNDLE_NAME="${CLI_RESOURCE_BUNDLE##*/}"
+  CLI_RESOURCE_BUNDLE_LINK="$APP_RESOURCES_DIR/bin/$CLI_RESOURCE_BUNDLE_NAME"
+  if [[ ! -e "$CLI_RESOURCE_BUNDLE_LINK" && ! -L "$CLI_RESOURCE_BUNDLE_LINK" ]]; then
+    ln -s "../$CLI_RESOURCE_BUNDLE_NAME" "$CLI_RESOURCE_BUNDLE_LINK"
+  fi
+done
+
 # Build cmuxd and ensure helper binaries are present (needed for both launch and no-launch).
 CMUXD_SRC="$PWD/cmuxd/zig-out/bin/cmuxd"
 if [[ -d "$PWD/cmuxd" ]]; then
