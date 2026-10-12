@@ -3413,10 +3413,13 @@
 		E62155868BB29FEB5DAAAF25 /* SidebarSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD52285508B1D6A9875E7B3 /* SidebarSelectionState.swift */; };
 		C12791000000000000000007 /* SidebarSnapshotOwnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C12791000000000000000008 /* SidebarSnapshotOwnerTests.swift */; };
 		F57072635F25EBCA741E125D /* SidebarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1614EAD3CCF70A177A51BD1 /* SidebarState.swift */; };
+		3E20E4DB7221B66BA4132D7D /* SidebarSurfaceRowsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F9DE8BC78E89A68953CC0 /* SidebarSurfaceRowsView.swift */; };
+		F82108324BD93C52008A6733 /* SidebarTabBrowserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D34436692F3C10813DF8ECD /* SidebarTabBrowserModel.swift */; };
 		D7344F010000000000000001 /* SidebarTabDragPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7344F010000000000000002 /* SidebarTabDragPayload.swift */; };
 		D73440010000000000000001 /* SidebarTabDragPayloadProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73440010000000000000002 /* SidebarTabDragPayloadProviderTests.swift */; };
 		F7216006000000000000001 /* SidebarTabItemContextMenuState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7216006000000000000002 /* SidebarTabItemContextMenuState.swift */; };
 		8430A0030000000000000003 /* SidebarTabItemSettingsSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430B0030000000000000003 /* SidebarTabItemSettingsSnapshot.swift */; };
+		ABB37164FF3A3A39D03BC250 /* SidebarTabNameObservations.swift in Sources */ = {isa = PBXBuildFile; fileRef = D19B8198B938801628D9DC86 /* SidebarTabNameObservations.swift */; };
 		A6AC73F10000000000000001 /* SidebarTitleFirstLineCenterAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AC73F10000000000000002 /* SidebarTitleFirstLineCenterAlignment.swift */; };
 		CA39C0304FE351A21C372429 /* SidebarWidthPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0171AF1F49F7547191CEE5 /* SidebarWidthPolicyTests.swift */; };
 		8430A0010000000000000001 /* SidebarWorkspaceBranchDirectorySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430B0010000000000000001 /* SidebarWorkspaceBranchDirectorySettings.swift */; };
@@ -4246,6 +4249,7 @@
 		D4476F0B0000000000000001 /* VaultSessionViewMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4476F0B0000000000000002 /* VaultSessionViewMenu.swift */; };
 		C5BEA2B0EA914759A8BFD577 /* VaultSocketPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8649C5174544BFFA8674D52 /* VaultSocketPayloadTests.swift */; };
 		F7216001000000000000001 /* VerticalTabsSidebar+EmptyAreasAndFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7216001000000000000002 /* VerticalTabsSidebar+EmptyAreasAndFooter.swift */; };
+		34BC0831E48DCF4DB6CD2405 /* VerticalTabsSidebar+SurfaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0307D59C28519BA133FEBC4 /* VerticalTabsSidebar+SurfaceSearch.swift */; };
 		C9A57209C9A57209C9A57209 /* VerticalTabsSidebar+WorkspaceGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A5720AC9A5720AC9A5720A /* VerticalTabsSidebar+WorkspaceGroups.swift */; };
 		A28B087F0000000000000005 /* ViewerNavigationKeyRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28B087F0000000000000006 /* ViewerNavigationKeyRouter.swift */; };
 		A3340002A3340002A3340002 /* ViewerNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3340001A3340001A3340001 /* ViewerNavigationTests.swift */; };
@@ -7922,10 +7926,13 @@
 		9AD52285508B1D6A9875E7B3 /* SidebarSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectionState.swift; sourceTree = "<group>"; };
 		C12791000000000000000008 /* SidebarSnapshotOwnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSnapshotOwnerTests.swift; sourceTree = "<group>"; };
 		D1614EAD3CCF70A177A51BD1 /* SidebarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar/SidebarState.swift; sourceTree = "<group>"; };
+		509F9DE8BC78E89A68953CC0 /* SidebarSurfaceRowsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSurfaceRowsView.swift; sourceTree = "<group>"; };
+		8D34436692F3C10813DF8ECD /* SidebarTabBrowserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTabBrowserModel.swift; sourceTree = "<group>"; };
 		D7344F010000000000000002 /* SidebarTabDragPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar/SidebarTabDragPayload.swift; sourceTree = "<group>"; };
 		D73440010000000000000002 /* SidebarTabDragPayloadProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTabDragPayloadProviderTests.swift; sourceTree = "<group>"; };
 		F7216006000000000000002 /* SidebarTabItemContextMenuState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTabItemContextMenuState.swift; sourceTree = "<group>"; };
 		8430B0030000000000000003 /* SidebarTabItemSettingsSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTabItemSettingsSnapshot.swift; sourceTree = "<group>"; };
+		D19B8198B938801628D9DC86 /* SidebarTabNameObservations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTabNameObservations.swift; sourceTree = "<group>"; };
 		A6AC73F10000000000000002 /* SidebarTitleFirstLineCenterAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar/SidebarTitleFirstLineCenterAlignment.swift; sourceTree = "<group>"; };
 		EE0171AF1F49F7547191CEE5 /* SidebarWidthPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarWidthPolicyTests.swift; sourceTree = "<group>"; };
 		8430B0010000000000000001 /* SidebarWorkspaceBranchDirectorySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarWorkspaceBranchDirectorySettings.swift; sourceTree = "<group>"; };
@@ -8747,6 +8754,7 @@
 		D4476F0B0000000000000002 /* VaultSessionViewMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultSessionViewMenu.swift; sourceTree = "<group>"; };
 		E8649C5174544BFFA8674D52 /* VaultSocketPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultSocketPayloadTests.swift; sourceTree = "<group>"; };
 		F7216001000000000000002 /* VerticalTabsSidebar+EmptyAreasAndFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalTabsSidebar+EmptyAreasAndFooter.swift"; sourceTree = "<group>"; };
+		C0307D59C28519BA133FEBC4 /* VerticalTabsSidebar+SurfaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalTabsSidebar+SurfaceSearch.swift"; sourceTree = "<group>"; };
 		C9A5720AC9A5720AC9A5720A /* VerticalTabsSidebar+WorkspaceGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalTabsSidebar+WorkspaceGroups.swift"; sourceTree = "<group>"; };
 		A28B087F0000000000000006 /* ViewerNavigationKeyRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panels/ViewerNavigationKeyRouter.swift; sourceTree = "<group>"; };
 		A3340001A3340001A3340001 /* ViewerNavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerNavigationTests.swift; sourceTree = "<group>"; };
@@ -12218,6 +12226,10 @@
 				32EE1C28EF7A7BF6ADD44E45 /* ClickByHintPreview.swift */,
 				A9415C44EEB98E47FEAD7BCD /* RemoteTmuxController+NewSession.swift */,
 				888DEA5181DA90BA20514C63 /* AgentSessionTurnNotifier.swift */,
+				8D34436692F3C10813DF8ECD /* SidebarTabBrowserModel.swift */,
+				509F9DE8BC78E89A68953CC0 /* SidebarSurfaceRowsView.swift */,
+				C0307D59C28519BA133FEBC4 /* VerticalTabsSidebar+SurfaceSearch.swift */,
+				D19B8198B938801628D9DC86 /* SidebarTabNameObservations.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -16429,9 +16441,12 @@
 				B804A0280000000000000028 /* SidebarSelectionCoalescer.swift in Sources */,
 				E62155868BB29FEB5DAAAF25 /* SidebarSelectionState.swift in Sources */,
 				F57072635F25EBCA741E125D /* SidebarState.swift in Sources */,
+				3E20E4DB7221B66BA4132D7D /* SidebarSurfaceRowsView.swift in Sources */,
+				F82108324BD93C52008A6733 /* SidebarTabBrowserModel.swift in Sources */,
 				D7344F010000000000000001 /* SidebarTabDragPayload.swift in Sources */,
 				F7216006000000000000001 /* SidebarTabItemContextMenuState.swift in Sources */,
 				8430A0030000000000000003 /* SidebarTabItemSettingsSnapshot.swift in Sources */,
+				ABB37164FF3A3A39D03BC250 /* SidebarTabNameObservations.swift in Sources */,
 				A6AC73F10000000000000001 /* SidebarTitleFirstLineCenterAlignment.swift in Sources */,
 				8430A0010000000000000001 /* SidebarWorkspaceBranchDirectorySettings.swift in Sources */,
 				EDA24082C65B4E2A2A03F276 /* SidebarWorkspaceChecklistPopover.swift in Sources */,
@@ -17050,6 +17065,7 @@
 				021B98686B73408892D7C876 /* VaultSessionSearchQuery.swift in Sources */,
 				D4476F0B0000000000000001 /* VaultSessionViewMenu.swift in Sources */,
 				F7216001000000000000001 /* VerticalTabsSidebar+EmptyAreasAndFooter.swift in Sources */,
+				34BC0831E48DCF4DB6CD2405 /* VerticalTabsSidebar+SurfaceSearch.swift in Sources */,
 				C9A57209C9A57209C9A57209 /* VerticalTabsSidebar+WorkspaceGroups.swift in Sources */,
 				A28B087F0000000000000005 /* ViewerNavigationKeyRouter.swift in Sources */,
 				ECB6A18DEC5D08DC2383081D /* VMClientSocketCommands+AgentUpdates.swift in Sources */,

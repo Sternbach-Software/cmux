@@ -11420,6 +11420,7 @@ struct VerticalTabsSidebar: View, Equatable {
     // receive only values and action closures. This is the ownership boundary
     // that prevents layout/realization from publishing row state (#6707).
     @State var workspaceSnapshotCache = SidebarRowSnapshotCache()
+    @State var sidebarTabBrowser = SidebarTabBrowserModel()
     @State private var sidebarOriginPresentationCache = SidebarOriginPresentationCache()
     /// Bumped once per interactive-resize end: an apply during the drag
     /// is deferred by the AppKit controller. The bump projects one final
@@ -12050,31 +12051,24 @@ struct VerticalTabsSidebar: View, Equatable {
     }
 
     private func workspaceScrollArea(renderContext: WorkspaceListRenderContext) -> some View {
-        // The AppKit NSTableView sidebar is opt-in while it soaks; default stays
-        // on the SwiftUI list. The flag key is declared only in FeatureFlags.swift.
-        Group {
-            if featureFlags.isAppKitSidebarListEnabled {
-                AnyView(
-                    appKitWorkspaceScrollArea(renderContext: renderContext)
-                        // Push the flag value into the portal from its single
-                        // evaluation site (feature-flag lint one-file rule).
-                        .onAppear { WindowTerminalPortal.usesCoalescedAnchorFailsafe = true }
-                )
-            } else {
-                AnyView(
-                    SidebarUnreadSnapshotReader(source: sidebarUnread) { unreadSnapshot in
-                        legacyWorkspaceScrollArea(
-                            renderContext: renderContext,
-                            unreadSnapshot: unreadSnapshot
-                        )
-                    }
-                    .onAppear { WindowTerminalPortal.usesCoalescedAnchorFailsafe = false }
-                )
+        // The fork's workspace/tab hierarchy uses the SwiftUI snapshot list.
+        SidebarUnreadSnapshotReader(source: sidebarUnread) { unreadSnapshot in
+            legacyWorkspaceScrollArea(
+                renderContext: renderContext,
+                unreadSnapshot: unreadSnapshot
+            )
+        }
+        .onAppear { WindowTerminalPortal.usesCoalescedAnchorFailsafe = false }
+        .task(id: sidebarTabBrowser.request) {
+            guard isPresented else { return }
+            await sidebarTabBrowser.searchContent(content: sidebarTabContent)
+        }
+        .sidebarTabNameObservations(ids: renderContext.workspaceIds, workspaces: renderContext.tabs) {
+            if isPresented {
+                refreshSidebarTabs()
             }
         }
-        // Workspace publisher observations and the snapshot refresh feed BOTH
-        // list implementations, so they live on the shared parent. Both use one snapshot cache; material updates publish a generation,
-        // never a second retained copy of every workspace snapshot.
+        // Workspace publisher observations terminate above the lazy list.
         .sidebarProcessTitleObservations(
             ids: renderContext.workspaceIds,
             models: renderContext.tabs.map(\.sidebarProcessTitleObservation)
@@ -12152,7 +12146,10 @@ struct VerticalTabsSidebar: View, Equatable {
         renderContext: WorkspaceListRenderContext,
         unreadSnapshot: SidebarUnreadSnapshot
     ) -> some View {
-        let scrollInsets = SidebarWorkspaceScrollInsets.workspaceList
+        let scrollInsets = SidebarWorkspaceScrollInsets(
+            top: SidebarWorkspaceScrollInsets.workspaceList.top + SidebarSearchField.visibleHeight + 16,
+            bottom: SidebarWorkspaceScrollInsets.workspaceList.bottom
+        )
         return GeometryReader { viewport in
             // Keep viewport geometry as a downward-only layout input. Writing
             // this value into @State from onGeometryChange feeds an
@@ -12201,6 +12198,10 @@ struct VerticalTabsSidebar: View, Equatable {
             }
             .overlay(alignment: .topLeading) {
                 minimalModeSidebarTitlebarControlsOverlay()
+            }
+            .overlay(alignment: .top) {
+                sidebarTabSearchField
+                    .padding(.top, SidebarWorkspaceScrollInsets.workspaceList.top + 4)
             }
             .overlay(alignment: .top) {
                 workspaceReorderDropOverlay(
@@ -13189,6 +13190,7 @@ struct VerticalTabsSidebar: View, Equatable {
                 hostTitleSuffixes: hostTitleSuffixes
             )
         }
+        refreshSidebarTabs()
     }
 
     private func refreshWorkspaceSnapshots() {
@@ -13226,6 +13228,7 @@ struct VerticalTabsSidebar: View, Equatable {
                 hostTitleSuffixes: hostTitleSuffixes
             )
         }
+        refreshSidebarTabs()
     }
 
     private func makeWorkspaceSnapshot(
@@ -14398,7 +14401,20 @@ struct VerticalTabsSidebar: View, Equatable {
         unreadSnapshot: SidebarUnreadSnapshot
     ) -> some View {
         let signpost = SidebarProfilingSignposts.begin("sidebar-workspace-rows", "renderItems=\(renderContext.workspaceRenderItems.count) collectDropTargets=\(shouldCollectWorkspaceDropTargets)")
-        let renderItems = renderContext.workspaceRenderItems
+        // Search reveals matching tabs even inside collapsed workspace groups.
+        let matchingWorkspaceIDs = sidebarTabBrowser.matchingWorkspaceIDs
+        let renderItems = sidebarTabBrowser.isFiltering
+            ? renderContext.tabs.filter { matchingWorkspaceIDs.contains($0.id) }.map { SidebarWorkspaceRenderItem.workspace(workspaceId: $0.id) }
+            : renderContext.workspaceRenderItems
+        let tabRowsByWorkspaceID = Dictionary(grouping: sidebarTabBrowser.isFiltering ? sidebarTabBrowser.matches : sidebarTabBrowser.entries, by: \.workspaceID)
+        let focusedPanelsByWorkspaceID = Dictionary(uniqueKeysWithValues: renderContext.tabs.compactMap { workspace in
+            workspace.focusedPanelId.map { (workspace.id, $0) }
+        })
+        let matchedByContent = sidebarTabBrowser.matchedByContent
+        let isFilteringTabs = sidebarTabBrowser.isFiltering
+        let emptySearchText = sidebarTabBrowser.isSearchingContent
+            ? String(localized: "sidebar.tabs.searchingContent", defaultValue: "Searching tab content…")
+            : String(localized: "sidebar.tabs.noMatches", defaultValue: "No matching tabs")
         // Reduce live models to cheap immutable values above the LazyVStack.
         // Shared notification/selection projections are built once here; full
         // row trees and row-specific closure binding remain lazy.
@@ -14441,6 +14457,13 @@ struct VerticalTabsSidebar: View, Equatable {
         )
         let actionFactory = makeWorkspaceRowActionFactory()
         let rows = LazyVStack(spacing: tabRowSpacing) {
+            if renderItems.isEmpty && isFilteringTabs {
+                Text(emptySearchText)
+                    .foregroundStyle(.secondary)
+                    .cmuxFont(size: 12)
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             ForEach(renderItems, id: \.id) { item in
                 switch item {
                 case .groupHeader(let groupId, _):
@@ -14454,6 +14477,13 @@ struct VerticalTabsSidebar: View, Equatable {
                             listSnapshot: listSnapshot,
                             actionFactory: actionFactory,
                             shouldCollectWorkspaceDropTargets: shouldCollectWorkspaceDropTargets
+                        )
+                        SidebarSurfaceRowsView(
+                            tabs: tabRowsByWorkspaceID[workspaceId] ?? [],
+                            selectedPanelID: input.isActive ? focusedPanelsByWorkspaceID[workspaceId] : nil,
+                            matchedByContent: matchedByContent,
+                            fontSize: 12 * input.settings.sidebarFontScale,
+                            select: { panelID in focusSidebarTab(panelID, workspaceID: workspaceId) }
                         )
                     }
                 }
