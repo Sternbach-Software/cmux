@@ -10,7 +10,8 @@ extension VerticalTabsSidebar {
                     id: panelID,
                     workspaceID: workspace.id,
                     title: workspace.panelTitle(panelId: panelID) ?? panel.displayTitle,
-                    icon: panel.displayIcon
+                    icon: panel.displayIcon,
+                    isPinned: workspace.isPanelPinned(panelID)
                 )
             }
         })

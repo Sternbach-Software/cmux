@@ -386,6 +386,16 @@
 		</dict>
 		<dict>
 			<key>UTTypeIdentifier</key>
+			<string>com.cmux.sidebar-surface-reorder</string>
+			<key>UTTypeDescription</key>
+			<string>cmux Sidebar Surface Reorder</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
 			<string>com.cmux.right-sidebar-mode-reorder</string>
 			<key>UTTypeDescription</key>
 			<string>cmux Right Sidebar Tab Reorder</string>

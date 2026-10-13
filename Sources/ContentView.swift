@@ -14483,7 +14483,11 @@ struct VerticalTabsSidebar: View, Equatable {
                             selectedPanelID: input.isActive ? focusedPanelsByWorkspaceID[workspaceId] : nil,
                             matchedByContent: matchedByContent,
                             fontSize: 12 * input.settings.sidebarFontScale,
-                            select: { panelID in focusSidebarTab(panelID, workspaceID: workspaceId) }
+                            select: { panelID in focusSidebarTab(panelID, workspaceID: workspaceId) },
+                            canReorder: { source, target in sidebarTabBrowser.canReorder(source, relativeTo: target) },
+                            reorder: { source, target, placement in
+                                sidebarTabBrowser.reorder(source, relativeTo: target, placement: placement)
+                            }
                         )
                     }
                 }

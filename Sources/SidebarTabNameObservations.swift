@@ -3,7 +3,7 @@ import Foundation
 import SwiftUI
 
 extension View {
-    /// Bridges existing workspace title publishers above the lazy row boundary.
+    /// Bridges tab titles, membership, pin state and pane order above the lazy row boundary.
     func sidebarTabNameObservations(
         ids: [UUID],
         workspaces: [Workspace],
@@ -14,6 +14,7 @@ extension View {
                 for workspace in workspaces {
                     let names = workspace.$panelTitles
                         .combineLatest(workspace.$panelCustomTitles, workspace.panelsPublisher)
+                        .combineLatest(workspace.$pinnedPanelIds, workspace.paneLayoutVersionPublisher)
                         .values
                     group.addTask { @MainActor in
                         for await _ in names {

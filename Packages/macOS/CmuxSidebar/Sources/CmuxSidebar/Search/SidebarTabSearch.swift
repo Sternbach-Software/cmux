@@ -12,6 +12,8 @@ public struct SidebarTabSearch: Sendable {
         public let title: String
         /// The tab's SF Symbol, when available.
         public let icon: String?
+        /// Whether the tab belongs to the workspace's pinned section.
+        public let isPinned: Bool
 
         /// Creates a sidebar tab value.
         ///
@@ -20,11 +22,13 @@ public struct SidebarTabSearch: Sendable {
         ///   - workspaceID: The containing workspace identity.
         ///   - title: The resolved tab name.
         ///   - icon: An optional SF Symbol name.
-        public init(id: UUID, workspaceID: UUID, title: String, icon: String? = nil) {
+        ///   - isPinned: Whether the tab is pinned.
+        public init(id: UUID, workspaceID: UUID, title: String, icon: String? = nil, isPinned: Bool = false) {
             self.id = id
             self.workspaceID = workspaceID
             self.title = title
             self.icon = icon
+            self.isPinned = isPinned
         }
     }
 
