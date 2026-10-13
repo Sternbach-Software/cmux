@@ -12059,10 +12059,6 @@ struct VerticalTabsSidebar: View, Equatable {
             )
         }
         .onAppear { WindowTerminalPortal.usesCoalescedAnchorFailsafe = false }
-        .task(id: sidebarTabBrowser.request) {
-            guard isPresented else { return }
-            await sidebarTabBrowser.searchContent(content: sidebarTabContent)
-        }
         .sidebarTabNameObservations(ids: renderContext.workspaceIds, workspaces: renderContext.tabs) {
             if isPresented {
                 refreshSidebarTabs()
@@ -14407,9 +14403,7 @@ struct VerticalTabsSidebar: View, Equatable {
             ? renderContext.tabs.filter { matchingWorkspaceIDs.contains($0.id) }.map { SidebarWorkspaceRenderItem.workspace(workspaceId: $0.id) }
             : renderContext.workspaceRenderItems
         let tabRowsByWorkspaceID = Dictionary(grouping: sidebarTabBrowser.isFiltering ? sidebarTabBrowser.matches : sidebarTabBrowser.entries, by: \.workspaceID)
-        let focusedPanelsByWorkspaceID = Dictionary(uniqueKeysWithValues: renderContext.tabs.compactMap { workspace in
-            workspace.focusedPanelId.map { (workspace.id, $0) }
-        })
+        let focusedPanelsByWorkspaceID = sidebarTabBrowser.focusedPanelsByWorkspaceID
         let matchedByContent = sidebarTabBrowser.matchedByContent
         let isFilteringTabs = sidebarTabBrowser.isFiltering
         let emptySearchText = sidebarTabBrowser.isSearchingContent

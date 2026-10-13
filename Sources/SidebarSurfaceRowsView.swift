@@ -108,8 +108,11 @@ private struct SidebarSurfaceRow: View {
 private enum SidebarSurfaceDragPayload {
     static let typeIdentifier = "com.cmux.sidebar-surface-reorder"
     static let contentType = UTType(exportedAs: typeIdentifier)
+    @MainActor static var activePanelID: UUID?
 
+    @MainActor
     static func provider(panelID: UUID) -> NSItemProvider {
+        activePanelID = panelID
         let provider = NSItemProvider()
         let data = Data(panelID.uuidString.utf8)
         provider.registerDataRepresentation(forTypeIdentifier: typeIdentifier, visibility: .ownProcess) { completion in
@@ -119,13 +122,6 @@ private enum SidebarSurfaceDragPayload {
         return provider
     }
 
-    static func draggedPanelID() -> UUID? {
-        let pasteboard = NSPasteboard(name: .drag)
-        let type = NSPasteboard.PasteboardType(typeIdentifier)
-        guard let value = pasteboard.string(forType: type)
-            ?? pasteboard.data(forType: type).flatMap({ String(data: $0, encoding: .utf8) }) else { return nil }
-        return UUID(uuidString: value)
-    }
 }
 
 @MainActor
@@ -154,14 +150,17 @@ private struct SidebarSurfaceDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
-        defer { placement = nil }
+        defer {
+            placement = nil
+            SidebarSurfaceDragPayload.activePanelID = nil
+        }
         guard let sourceID = sourceID(info: info) else { return false }
         return reorder(sourceID, targetID, proposedPlacement(info: info))
     }
 
     private func sourceID(info: DropInfo) -> UUID? {
         guard info.hasItemsConforming(to: [SidebarSurfaceDragPayload.typeIdentifier]),
-              let id = SidebarSurfaceDragPayload.draggedPanelID(),
+              let id = SidebarSurfaceDragPayload.activePanelID,
               canReorder(id, targetID) else { return nil }
         return id
     }

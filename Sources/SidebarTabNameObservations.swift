@@ -15,6 +15,7 @@ extension View {
                     let names = workspace.$panelTitles
                         .combineLatest(workspace.$panelCustomTitles, workspace.panelsPublisher)
                         .combineLatest(workspace.$pinnedPanelIds, workspace.paneLayoutVersionPublisher)
+                        .combineLatest(workspace.sidebarSurfaceRevisionPublisher, workspace.sidebarFocusedPanelPublisher)
                         .values
                     group.addTask { @MainActor in
                         for await _ in names {

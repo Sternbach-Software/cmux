@@ -3,6 +3,9 @@ import SwiftUI
 
 extension VerticalTabsSidebar {
     func refreshSidebarTabs() {
+        sidebarTabBrowser.replaceFocusedPanels(Dictionary(uniqueKeysWithValues: tabManager.tabs.compactMap { workspace in
+            workspace.focusedPanelId.map { (workspace.id, $0) }
+        }))
         sidebarTabBrowser.replaceEntries(tabManager.tabs.flatMap { workspace in
             workspace.sidebarOrderedPanelIds().compactMap { panelID in
                 guard let panel = workspace.panels[panelID] else { return nil }

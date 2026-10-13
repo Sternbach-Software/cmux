@@ -18,6 +18,7 @@ final class SidebarTabBrowserModel {
     private(set) var matches: [SidebarTabSearch.Entry] = []
     private(set) var isSearchingContent = false
     private(set) var matchedByContent = false
+    private(set) var focusedPanelsByWorkspaceID: [UUID: UUID] = [:]
     private let search = SidebarTabSearch()
     @ObservationIgnored private let defaults: UserDefaults
     private let order = SidebarSurfaceOrder()
@@ -30,6 +31,11 @@ final class SidebarTabBrowserModel {
     var request: Request { Request(query: query, entries: entries) }
     var isFiltering: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     var matchingWorkspaceIDs: Set<UUID> { Set(matches.map(\.workspaceID)) }
+
+    func replaceFocusedPanels(_ focusedPanels: [UUID: UUID]) {
+        guard focusedPanelsByWorkspaceID != focusedPanels else { return }
+        focusedPanelsByWorkspaceID = focusedPanels
+    }
 
     func replaceEntries(_ entries: [SidebarTabSearch.Entry]) {
         let stored = defaults.dictionary(forKey: Self.orderDefaultsKey) as? [String: [String]] ?? [:]
@@ -86,6 +92,6 @@ final class SidebarTabBrowserModel {
     private func updateNameMatches() {
         matches = search.nameMatches(query: query, entries: entries)
         matchedByContent = false
-        isSearchingContent = isFiltering && matches.isEmpty
+        isSearchingContent = false
     }
 }
