@@ -2962,6 +2962,10 @@ final class Workspace: Identifiable, ObservableObject, FilePreviewTabMetadataHos
     /// Legacy Combine bridge for the remaining `$paneLayoutVersion`
     /// subscribers; same contract as `panelsPublisher`.
     let paneLayoutVersionPublisher = CurrentValueSubject<Int, Never>(0)
+    /// Sidebar tab rows depend on the surface mapping and focused selection,
+    /// neither of which is covered by the legacy panel/layout publishers.
+    let sidebarSurfaceRevisionPublisher = CurrentValueSubject<Int, Never>(0)
+    let sidebarFocusedPanelPublisher = CurrentValueSubject<UUID?, Never>(nil)
 
     /// Mapping from bonsplit TabID to our Panel instances
     var panels: [UUID: any Panel] {
@@ -4768,16 +4772,19 @@ final class Workspace: Identifiable, ObservableObject, FilePreviewTabMetadataHos
     /// Registers a bonsplit surface as the active owner for a panel.
     func bindSurface(_ surfaceId: TabID, toPanelId panelId: UUID) {
         paneTree.bindSurface(surfaceId, toPanelId: panelId)
+        sidebarSurfaceRevisionPublisher.send(sidebarSurfaceRevisionPublisher.value &+ 1)
     }
 
     /// Removes one bonsplit surface mapping.
     func removeSurfaceMapping(forSurfaceId surfaceId: TabID) {
         paneTree.removeSurfaceMapping(forSurfaceId: surfaceId)
+        sidebarSurfaceRevisionPublisher.send(sidebarSurfaceRevisionPublisher.value &+ 1)
     }
 
     /// Removes every bonsplit surface mapping for a closed panel.
     func removeSurfaceMappings(forPanelId panelId: UUID) {
         paneTree.removeSurfaceMappings(forPanelId: panelId)
+        sidebarSurfaceRevisionPublisher.send(sidebarSurfaceRevisionPublisher.value &+ 1)
     }
 
     /// Tab IDs that are allowed to close even if they would normally require confirmation.
@@ -14053,6 +14060,9 @@ extension Workspace: BonsplitDelegate {
             return
         }
         let effectiveFocusedPanelId = effectiveSelectedPanelId(inPane: focusedPane) ?? selectedPanelId
+        if sidebarFocusedPanelPublisher.value != effectiveFocusedPanelId {
+            sidebarFocusedPanelPublisher.send(effectiveFocusedPanelId)
+        }
         guard let initialPanel = panels[effectiveFocusedPanelId] else { return }
         // The request may replace the object while preserving the panel ID.
         // Re-resolve before preparing or activating focus so the live browser
