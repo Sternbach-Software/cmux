@@ -16,6 +16,10 @@ extension View {
                         .combineLatest(workspace.$panelCustomTitles, workspace.panelsPublisher)
                         .combineLatest(workspace.$pinnedPanelIds, workspace.paneLayoutVersionPublisher)
                         .combineLatest(workspace.sidebarSurfaceRevisionPublisher, workspace.sidebarFocusedPanelPublisher)
+                        // Agent title and focus changes can arrive in bursts. Rebuild the
+                        // sidebar projection at most once per display interval instead of
+                        // publishing every intermediate value on the main actor.
+                        .throttle(for: .milliseconds(50), scheduler: RunLoop.main, latest: true)
                         .values
                     group.addTask { @MainActor in
                         for await _ in names {

@@ -1380,7 +1380,11 @@ fi
 # A tagged launch is a dogfood surface, so it must have an explicit identity
 # before the app is started.  Keeping this gate here covers agents that call
 # reload.sh directly instead of the higher-level dev-setup wrapper.
-if [[ "$LAUNCH" -eq 1 && -n "$TAG" && -z "$AUTH_PROFILE" ]]; then
+LOCAL_UNAUTHENTICATED_LAUNCH=0
+if [[ "${CMUX_DEV_BACKEND_MODE:-}" == "local" && "${CMUX_DEV_CLOUD_ENABLED:-1}" == "0" ]]; then
+  LOCAL_UNAUTHENTICATED_LAUNCH=1
+fi
+if [[ "$LAUNCH" -eq 1 && -n "$TAG" && -z "$AUTH_PROFILE" && "$LOCAL_UNAUTHENTICATED_LAUNCH" -ne 1 ]]; then
   AUTH_PROFILE="personal"
   if [[ -z "$AUTH_CREDENTIALS_FILE" ]]; then
     for candidate in "${HOME:-}/.secrets/cmuxterm-dev.env" "${HOME:-}/.secrets/cmux.env"; do
