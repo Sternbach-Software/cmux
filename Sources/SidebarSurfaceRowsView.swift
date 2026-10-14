@@ -8,6 +8,7 @@ struct SidebarSurfaceRowsView: View {
     let matchedByContent: Bool
     let fontSize: CGFloat
     let select: (UUID) -> Void
+    let rename: (UUID, String) -> Void
     let canReorder: (UUID, UUID) -> Bool
     let reorder: (UUID, UUID, SidebarSurfaceOrder.Placement) -> Bool
 
@@ -28,6 +29,7 @@ struct SidebarSurfaceRowsView: View {
                     fontSize: fontSize,
                     dropPlacement: dropTarget?.id == tab.id ? dropTarget?.placement : nil,
                     select: { select(tab.id) },
+                    rename: { rename(tab.id, tab.title) },
                     frameChanged: { rowFrames[tab.id] = $0 },
                     dragChanged: { updateDropTarget(sourceID: tab.id, location: $0) },
                     dragEnded: { finishDrag(sourceID: tab.id, location: $0) }
@@ -66,6 +68,7 @@ private struct SidebarSurfaceRow: View {
     let fontSize: CGFloat
     let dropPlacement: SidebarSurfaceOrder.Placement?
     let select: () -> Void
+    let rename: () -> Void
     let frameChanged: (CGRect) -> Void
     let dragChanged: (CGPoint) -> Void
     let dragEnded: (CGPoint) -> Void
@@ -106,6 +109,12 @@ private struct SidebarSurfaceRow: View {
         }
         .buttonStyle(.plain)
         .help(tab.title)
+        .contextMenu {
+            Button(
+                String(localized: "command.renameTab.title", defaultValue: "Rename Tab…"),
+                action: rename
+            )
+        }
         .accessibilityIdentifier("sidebarSurface.\(tab.id.uuidString)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityValue(tab.isPinned ? String(localized: "taskManager.row.pinned", defaultValue: "Pinned") : "")
@@ -115,6 +124,9 @@ private struct SidebarSurfaceRow: View {
                 Capsule().fill(Color.accentColor).frame(height: 2).allowsHitTesting(false)
             }
         }
+        .simultaneousGesture(
+            TapGesture(count: 2).onEnded(rename)
+        )
         .simultaneousGesture(
             DragGesture(minimumDistance: 6, coordinateSpace: .named("sidebarSurfaceRows"))
                 .onChanged { dragChanged($0.location) }

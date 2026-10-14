@@ -14478,6 +14478,16 @@ struct VerticalTabsSidebar: View, Equatable {
                             matchedByContent: matchedByContent,
                             fontSize: 12 * input.settings.sidebarFontScale,
                             select: { panelID in focusSidebarTab(panelID, workspaceID: workspaceId) },
+                            rename: { panelID, currentName in
+                                AppDelegate.shared?.requestCommandPaletteRename(
+                                    CommandPaletteRenameTarget(
+                                        kind: .tab(workspaceId: workspaceId, panelId: panelID),
+                                        currentName: currentName
+                                    ),
+                                    preferredWindow: observedWindow,
+                                    source: "sidebarSurface.rename"
+                                )
+                            },
                             canReorder: { source, target in sidebarTabBrowser.canReorder(source, relativeTo: target) },
                             reorder: { source, target, placement in
                                 sidebarTabBrowser.reorder(source, relativeTo: target, placement: placement)
